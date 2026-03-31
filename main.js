@@ -16,7 +16,16 @@ const App = {
         if (dataParam) {
             try {
                 const decompressed = LZString.decompressFromEncodedURIComponent(dataParam);
-                this.state.data = JSON.parse(decompressed);
+                const raw = JSON.parse(decompressed);
+                // Map short keys back to full keys
+                this.state.data = {
+                    name: raw.n,
+                    method: raw.m,
+                    avatar: raw.a,
+                    banner: raw.b,
+                    info: raw.i,
+                    fields: raw.f || {}
+                };
                 this.state.view = 'client';
             } catch (e) {
                 console.error("Invalid link", e);
@@ -39,7 +48,7 @@ const App = {
     },
 
     handleAvatar(e) {
-        this.processImage(e.target.files[0], 64, 64, (base64) => {
+        this.processImage(e.target.files[0], 48, 48, (base64) => {
             this.state.avatarBase64 = base64;
             const preview = document.getElementById('avatar-preview');
             preview.style.backgroundImage = `url(data:image/jpeg;base64,${base64})`;
@@ -48,7 +57,7 @@ const App = {
     },
 
     handleBanner(e) {
-        this.processImage(e.target.files[0], 200, 80, (base64) => {
+        this.processImage(e.target.files[0], 120, 40, (base64) => {
             this.state.bannerBase64 = base64;
             const preview = document.getElementById('banner-preview');
             preview.style.backgroundImage = `url(data:image/jpeg;base64,${base64})`;
@@ -98,27 +107,28 @@ const App = {
         const nameInput = document.getElementById('payer-name').value;
         if (!nameInput) return alert("Ingresa tu nombre");
 
+        // Minified schema: n=name, m=method, a=avatar, b=banner, i=info, f=fields
         const data = {
-            name: nameInput,
-            method: this.state.method,
-            avatar: this.state.avatarBase64,
-            banner: this.state.bannerBase64,
-            info: document.getElementById('biz-info').value,
-            fields: {}
+            n: nameInput,
+            m: this.state.method,
+            a: this.state.avatarBase64,
+            b: this.state.bannerBase64,
+            i: document.getElementById('biz-info').value,
+            f: {}
         };
 
         if (this.state.method === 'yape') {
-            data.fields.number = document.getElementById('yape-number').value;
-            if (!data.fields.number) return alert("Ingresa el número");
+            data.f.number = document.getElementById('yape-number').value;
+            if (!data.f.number) return alert("Ingresa el número");
         } else if (this.state.method === 'bcp') {
-            data.fields.name = document.getElementById('bcp-name').value;
-            data.fields.account = document.getElementById('bcp-account').value;
-            data.fields.cci = document.getElementById('bcp-cci').value;
-            if (!data.fields.account) return alert("Ingresa al menos el número de cuenta");
+            data.f.name = document.getElementById('bcp-name').value;
+            data.f.account = document.getElementById('bcp-account').value;
+            data.f.cci = document.getElementById('bcp-cci').value;
+            if (!data.f.account) return alert("Ingresa al menos el número de cuenta");
         } else if (this.state.method === 'interbank') {
-            data.fields.account = document.getElementById('ibk-account').value;
-            data.fields.cci = document.getElementById('ibk-cci').value;
-            if (!data.fields.account) return alert("Ingresa el número de cuenta");
+            data.f.account = document.getElementById('ibk-account').value;
+            data.f.cci = document.getElementById('ibk-cci').value;
+            if (!data.f.account) return alert("Ingresa el número de cuenta");
         }
 
         const jsonStr = JSON.stringify(data);
