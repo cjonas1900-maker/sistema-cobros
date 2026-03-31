@@ -1,0 +1,401 @@
+:root {
+    --primary: #5271FF;
+    --primary-glow: rgba(82, 113, 255, 0.15);
+    --secondary: #CC00FF;
+    --bg-dark: #F3F4F6;
+    --card-bg: rgba(255, 255, 255, 0.8);
+    --card-border: rgba(0, 0, 0, 0.08);
+    --text-main: #111827;
+    --text-dim: #6B7280;
+    --input-bg: rgba(0, 0, 0, 0.04);
+    --success: #10B981;
+    --font-head: 'Outfit', sans-serif;
+    --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: -10%;
+    left: -10%;
+    width: 40%;
+    height: 40%;
+    background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+    filter: blur(80px);
+    z-index: -1;
+    pointer-events: none;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    bottom: -10%;
+    right: -10%;
+    width: 40%;
+    height: 40%;
+    background: radial-gradient(circle, rgba(204, 0, 255, 0.15) 0%, transparent 70%);
+    filter: blur(80px);
+    z-index: -1;
+    pointer-events: none;
+}
+
+#app {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Glass Card */
+.glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    animation: slideUp 0.6s var(--transition);
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #111 0%, #666 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+p.subtitle {
+    color: var(--text-dim);
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+/* Sections */
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+}
+
+input, select {
+    background: var(--input-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 0.8rem 1rem;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 1rem;
+    width: 100%;
+    transition: var(--transition);
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px var(--primary-glow);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Method Selector */
+.method-tabs {
+    display: flex;
+    gap: 0.5rem;
+    background: var(--input-bg);
+    padding: 0.4rem;
+    border-radius: 14px;
+    margin-bottom: 1rem;
+}
+
+.method-tab {
+    flex: 1;
+    text-align: center;
+    padding: 0.6rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: var(--transition);
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+}
+
+.method-tab.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+/* Buttons */
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.link-input-wrap .btn {
+    margin-top: 0;
+    padding: 0 1.5rem;
+    height: 100%;
+    border-radius: 12px;
+    width: auto;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px var(--primary-glow);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text-main);
+}
+
+.btn-outline:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Copy Link Toast/Result */
+.result-box {
+    margin-top: 2rem;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px dashed var(--success);
+    border-radius: 16px;
+    padding: 1.2rem;
+    display: none; /* Shown via JS */
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.link-input-wrap {
+    display: flex;
+    gap: 0.5rem;
+    height: 3rem;
+}
+
+.link-input-wrap input {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--card-border);
+    flex: 1;
+    min-width: 0;
+    color: var(--text-main);
+    font-size: 0.85rem;
+    padding: 0 1rem;
+    pointer-events: all;
+    cursor: default;
+}
+
+/* Image Deletion */
+.preview-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.delete-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(239, 44, 44, 0.9);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: var(--transition);
+    border: none;
+    z-index: 10;
+}
+
+.preview-container:hover .delete-badge {
+    opacity: 1;
+}
+
+/* Client View Styles */
+.client-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+/* Banner */
+.banner {
+    width:calc(100% + 4rem);
+    height: 120px;
+    margin: -2rem -2rem 0 -2rem;
+    background: linear-gradient(135deg, #eee, #ccc);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.avatar {
+    width: 90px;
+    height: 90px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background-size: cover;
+    background-position: center;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    font-weight: 700;
+    border: 6px solid var(--card-bg);
+    margin-top: -45px;
+    z-index: 2;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.business-info {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    margin-top: 0.5rem;
+    line-height: 1.4;
+    text-align: center;
+    max-width: 90%;
+}
+
+.payment-card {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.field label {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+}
+
+.field span {
+    font-size: 1.1rem;
+    font-weight: 600;
+    word-break: break-all;
+}
+
+.copy-badge {
+    cursor: pointer;
+    position: relative;
+}
+
+.copy-badge::after {
+    content: 'Click para copiar';
+    position: absolute;
+    right: 0;
+    bottom: 100%;
+    background: #000;
+    color: #FFF;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: 0.2s;
+    pointer-events: none;
+}
+
+.copy-badge:hover::after {
+    opacity: 1;
+}
+
+.btn-yape { background: #7C3AED; color: white; }
+.btn-bcp { background: #002A48; color: white; }
+.btn-interbank { background: #37A333; color: white; }
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    #app { padding: 1rem; }
+    .glass-card { padding: 1.5rem; }
+}
+
+/* Animations */
+.success-msg {
+    color: var(--success);
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
