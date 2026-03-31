@@ -39,7 +39,7 @@ const App = {
     },
 
     handleAvatar(e) {
-        this.processImage(e.target.files[0], 100, 100, (base64) => {
+        this.processImage(e.target.files[0], 64, 64, (base64) => {
             this.state.avatarBase64 = base64;
             const preview = document.getElementById('avatar-preview');
             preview.style.backgroundImage = `url(data:image/jpeg;base64,${base64})`;
@@ -48,7 +48,7 @@ const App = {
     },
 
     handleBanner(e) {
-        this.processImage(e.target.files[0], 300, 120, (base64) => {
+        this.processImage(e.target.files[0], 200, 80, (base64) => {
             this.state.bannerBase64 = base64;
             const preview = document.getElementById('banner-preview');
             preview.style.backgroundImage = `url(data:image/jpeg;base64,${base64})`;
@@ -77,7 +77,7 @@ const App = {
                 ctx.imageSmoothingEnabled = true;
                 ctx.imageSmoothingQuality = 'high';
                 ctx.drawImage(img, 0, 0, width, height);
-                const base64 = canvas.toDataURL('image/jpeg', 0.5);
+                const base64 = canvas.toDataURL('image/jpeg', 0.2);
                 callback(base64.split(',')[1]); // Only keep the raw base64 data
             };
             img.src = event.target.result;
