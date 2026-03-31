@@ -15,8 +15,8 @@ const App = {
 
         if (dataParam) {
             try {
-                const decoded = decodeURIComponent(escape(atob(dataParam)));
-                this.state.data = JSON.parse(decoded);
+                const decompressed = LZString.decompressFromEncodedURIComponent(dataParam);
+                this.state.data = JSON.parse(decompressed);
                 this.state.view = 'client';
             } catch (e) {
                 console.error("Invalid link", e);
@@ -39,19 +39,19 @@ const App = {
     },
 
     handleAvatar(e) {
-        this.processImage(e.target.files[0], 48, 48, (base64) => {
+        this.processImage(e.target.files[0], 40, 40, (base64) => {
             this.state.avatarBase64 = base64;
             const preview = document.getElementById('avatar-preview');
-            preview.style.backgroundImage = `url(${base64})`;
+            preview.style.backgroundImage = `url(data:image/jpeg;base64,${base64})`;
             preview.innerHTML = '';
         });
     },
 
     handleBanner(e) {
-        this.processImage(e.target.files[0], 160, 60, (base64) => {
+        this.processImage(e.target.files[0], 120, 50, (base64) => {
             this.state.bannerBase64 = base64;
             const preview = document.getElementById('banner-preview');
-            preview.style.backgroundImage = `url(${base64})`;
+            preview.style.backgroundImage = `url(data:image/jpeg;base64,${base64})`;
             preview.innerHTML = 'Banner';
             preview.style.color = 'white';
             preview.style.textShadow = '0 2px 4px rgba(0,0,0,0.5)';
@@ -77,7 +77,8 @@ const App = {
                 ctx.imageSmoothingEnabled = true;
                 ctx.imageSmoothingQuality = 'high';
                 ctx.drawImage(img, 0, 0, width, height);
-                callback(canvas.toDataURL('image/jpeg', 0.2));
+                const base64 = canvas.toDataURL('image/jpeg', 0.1);
+                callback(base64.split(',')[1]); // Only keep the raw base64 data
             };
             img.src = event.target.result;
         };
@@ -121,7 +122,7 @@ const App = {
         }
 
         const jsonStr = JSON.stringify(data);
-        const encoded = btoa(unescape(encodeURIComponent(jsonStr)));
+        const encoded = LZString.compressToEncodedURIComponent(jsonStr);
         const url = `${window.location.origin}${window.location.pathname}?d=${encoded}`;
         
         const resultBox = document.getElementById('result-box');
@@ -180,7 +181,7 @@ const App = {
                         <div class="input-group">
                             <label>Foto de Perfil (Opcional)</label>
                             <div style="display: flex; gap: 1rem; align-items: center;">
-                                <div id="avatar-preview" class="preview-container" style="width: 50px; height: 50px; border-radius: 50%; background: var(--input-bg); border: 1px dashed var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; background-size: cover; background-position: center; background-image: ${this.state.avatarBase64 ? `url(${this.state.avatarBase64})` : 'none'};">
+                                <div id="avatar-preview" class="preview-container" style="width: 50px; height: 50px; border-radius: 50%; background: var(--input-bg); border: 1px dashed var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; background-size: cover; background-position: center; background-image: ${this.state.avatarBase64 ? `url(data:image/jpeg;base64,${this.state.avatarBase64})` : 'none'};">
                                     ${this.state.avatarBase64 ? `<button class="delete-badge" onclick="event.stopPropagation(); App.removeImage('avatar')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg></button>` : '+'}
                                 </div>
                                 <input type="file" id="profile-pic" accept="image/*" style="display: none;" onchange="App.handleAvatar(event)">
@@ -191,7 +192,7 @@ const App = {
                         <div class="input-group">
                             <label>Foto de Banner (Fondo)</label>
                             <div style="display: flex; gap: 1rem; align-items: center;">
-                                <div id="banner-preview" class="preview-container" style="flex: 1; height: 60px; border-radius: 12px; background: var(--input-bg); border: 1px dashed var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; background-size: cover; background-position: center; background-image: ${this.state.bannerBase64 ? `url(${this.state.bannerBase64})` : 'none'};">
+                                <div id="banner-preview" class="preview-container" style="flex: 1; height: 60px; border-radius: 12px; background: var(--input-bg); border: 1px dashed var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; background-size: cover; background-position: center; background-image: ${this.state.bannerBase64 ? `url(data:image/jpeg;base64,${this.state.bannerBase64})` : 'none'};">
                                     ${this.state.bannerBase64 ? `<button class="delete-badge" onclick="event.stopPropagation(); App.removeImage('banner')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg></button>` : '+ Subir Banner'}
                                 </div>
                                 <input type="file" id="banner-pic" accept="image/*" style="display: none;" onchange="App.handleBanner(event)">
@@ -238,10 +239,10 @@ const App = {
             const d = this.state.data;
             appDiv.innerHTML = `
                 <div class="glass-card">
-                    <div class="banner" style="background-image: ${d.banner ? `url(${d.banner})` : 'none'};"></div>
+                    <div class="banner" style="background-image: ${d.banner ? `url(data:image/jpeg;base64,${d.banner})` : 'none'};"></div>
                     <div class="client-hero">
                         ${d.avatar ? 
-                            `<div class="avatar" style="background-image: url(${d.avatar});"></div>` : 
+                            `<div class="avatar" style="background-image: url(data:image/jpeg;base64,${d.avatar});"></div>` : 
                             `<div class="avatar">${d.name.charAt(0).toUpperCase()}</div>`
                         }
                         <div>
