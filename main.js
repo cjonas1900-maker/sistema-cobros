@@ -39,7 +39,7 @@ const App = {
     },
 
     handleAvatar(e) {
-        this.processImage(e.target.files[0], 80, 80, (base64) => {
+        this.processImage(e.target.files[0], 100, 100, (base64) => {
             this.state.avatarBase64 = base64;
             const preview = document.getElementById('avatar-preview');
             preview.style.backgroundImage = `url(data:image/jpeg;base64,${base64})`;
@@ -48,7 +48,7 @@ const App = {
     },
 
     handleBanner(e) {
-        this.processImage(e.target.files[0], 250, 100, (base64) => {
+        this.processImage(e.target.files[0], 300, 120, (base64) => {
             this.state.bannerBase64 = base64;
             const preview = document.getElementById('banner-preview');
             preview.style.backgroundImage = `url(data:image/jpeg;base64,${base64})`;
@@ -77,7 +77,7 @@ const App = {
                 ctx.imageSmoothingEnabled = true;
                 ctx.imageSmoothingQuality = 'high';
                 ctx.drawImage(img, 0, 0, width, height);
-                const base64 = canvas.toDataURL('image/jpeg', 0.4);
+                const base64 = canvas.toDataURL('image/jpeg', 0.5);
                 callback(base64.split(',')[1]); // Only keep the raw base64 data
             };
             img.src = event.target.result;
@@ -123,16 +123,29 @@ const App = {
 
         const jsonStr = JSON.stringify(data);
         const encoded = LZString.compressToEncodedURIComponent(jsonStr);
-        const url = `${window.location.origin}${window.location.pathname}?d=${encoded}`;
+        const longUrl = `${window.location.origin}${window.location.pathname}?d=${encoded}`;
         
         const resultBox = document.getElementById('result-box');
         const linkInput = document.getElementById('generated-link');
         
-        linkInput.value = url;
         resultBox.style.display = 'flex';
-        
-        // Scroll to result
+        linkInput.value = "Generando link corto...";
         resultBox.scrollIntoView({ behavior: 'smooth' });
+
+        // Shorten with is.gd (Free & CORS-friendly)
+        fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`)
+            .then(res => res.json())
+            .then(resData => {
+                if (resData.shorturl) {
+                    linkInput.value = resData.shorturl;
+                } else {
+                    linkInput.value = longUrl;
+                }
+            })
+            .catch(err => {
+                console.error("Shortener failed", err);
+                linkInput.value = longUrl;
+            });
     },
 
     copyLink() {
