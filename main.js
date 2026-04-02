@@ -4,9 +4,11 @@ const App = {
         method: 'yape', // 'yape', 'bcp', 'interbank'
         name: '', 
         data: null,
-        avatarBase64: null,
-        bannerBase64: null,
-        businessInfo: ''
+        avatarUrl: null,
+        bannerUrl: null,
+        businessInfo: '',
+        isUploading: false,
+        imgbbKey: '6d207e02198a847aa98d0a2a901485a5' // Demo key, user can change this
     },
 
     init() {
@@ -48,22 +50,61 @@ const App = {
     },
 
     handleAvatar(e) {
-        this.processImage(e.target.files[0], 48, 48, (base64) => {
-            this.state.avatarBase64 = base64;
-            const preview = document.getElementById('avatar-preview');
-            preview.style.backgroundImage = `url(data:image/jpeg;base64,${base64})`;
-            preview.innerHTML = '';
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        this.processImage(file, 300, 300, (base64) => {
+            this.uploadToImgBB(base64, (url) => {
+                this.state.avatarUrl = url;
+                const preview = document.getElementById('avatar-preview');
+                preview.style.backgroundImage = `url(${url})`;
+                preview.innerHTML = '';
+            });
         });
     },
 
     handleBanner(e) {
-        this.processImage(e.target.files[0], 120, 40, (base64) => {
-            this.state.bannerBase64 = base64;
-            const preview = document.getElementById('banner-preview');
-            preview.style.backgroundImage = `url(data:image/jpeg;base64,${base64})`;
-            preview.innerHTML = 'Banner';
-            preview.style.color = 'white';
-            preview.style.textShadow = '0 2px 4px rgba(0,0,0,0.5)';
+        const file = e.target.files[0];
+        if (!file) return;
+
+        this.processImage(file, 1000, 400, (base64) => {
+            this.uploadToImgBB(base64, (url) => {
+                this.state.bannerUrl = url;
+                const preview = document.getElementById('banner-preview');
+                preview.style.backgroundImage = `url(${url})`;
+                preview.innerHTML = 'Banner';
+                preview.style.color = 'white';
+                preview.style.textShadow = '0 2px 4px rgba(0,0,0,0.5)';
+            });
+        });
+    },
+
+    uploadToImgBB(base64, callback) {
+        this.state.isUploading = true;
+        this.render(); // Show loading state if needed
+        
+        const formData = new FormData();
+        formData.append('image', base64);
+
+        fetch(`https://api.imgbb.com/1/upload?key=${this.state.imgbbKey}`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(resData => {
+            this.state.isUploading = false;
+            if (resData.success) {
+                callback(resData.data.url);
+            } else {
+                alert("Error al subir imagen. Intenta de nuevo.");
+            }
+            this.render();
+        })
+        .catch(err => {
+            this.state.isUploading = false;
+            console.error("Upload failed", err);
+            alert("Error de conexión al subir imagen.");
+            this.render();
         });
     },
 
@@ -86,7 +127,7 @@ const App = {
                 ctx.imageSmoothingEnabled = true;
                 ctx.imageSmoothingQuality = 'high';
                 ctx.drawImage(img, 0, 0, width, height);
-                const base64 = canvas.toDataURL('image/jpeg', 0.2);
+                const base64 = canvas.toDataURL('image/jpeg', 0.85); // High quality
                 callback(base64.split(',')[1]); // Only keep the raw base64 data
             };
             img.src = event.target.result;
@@ -96,9 +137,9 @@ const App = {
 
     removeImage(type) {
         if (type === 'avatar') {
-            this.state.avatarBase64 = null;
+            this.state.avatarUrl = null;
         } else {
-            this.state.bannerBase64 = null;
+            this.state.bannerUrl = null;
         }
         this.render();
     },
@@ -111,8 +152,8 @@ const App = {
         const data = {
             n: nameInput,
             m: this.state.method,
-            a: this.state.avatarBase64,
-            b: this.state.bannerBase64,
+            a: this.state.avatarUrl,
+            b: this.state.bannerUrl,
             i: document.getElementById('biz-info').value,
             f: {}
         };
@@ -204,22 +245,22 @@ const App = {
                         <div class="input-group">
                             <label>Foto de Perfil (Opcional)</label>
                             <div style="display: flex; gap: 1rem; align-items: center;">
-                                <div id="avatar-preview" class="preview-container" style="width: 50px; height: 50px; border-radius: 50%; background: var(--input-bg); border: 1px dashed var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; background-size: cover; background-position: center; background-image: ${this.state.avatarBase64 ? `url(data:image/jpeg;base64,${this.state.avatarBase64})` : 'none'};">
-                                    ${this.state.avatarBase64 ? `<button class="delete-badge" onclick="event.stopPropagation(); App.removeImage('avatar')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg></button>` : '+'}
+                                <div id="avatar-preview" class="preview-container" style="width: 50px; height: 50px; border-radius: 50%; background: var(--input-bg); border: 1px dashed var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; background-size: cover; background-position: center; background-image: ${this.state.avatarUrl ? `url(${this.state.avatarUrl})` : 'none'};">
+                                    ${this.state.avatarUrl ? `<button class="delete-badge" onclick="event.stopPropagation(); App.removeImage('avatar')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg></button>` : (this.state.isUploading ? '⌛' : '+')}
                                 </div>
                                 <input type="file" id="profile-pic" accept="image/*" style="display: none;" onchange="App.handleAvatar(event)">
-                                <button class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.8rem;" onclick="document.getElementById('profile-pic').click()">Subir Foto</button>
+                                <button class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.8rem;" onclick="document.getElementById('profile-pic').click()" ${this.state.isUploading ? 'disabled' : ''}>${this.state.isUploading ? 'Subiendo...' : 'Subir Foto'}</button>
                             </div>
                         </div>
 
                         <div class="input-group">
                             <label>Foto de Banner (Fondo)</label>
                             <div style="display: flex; gap: 1rem; align-items: center;">
-                                <div id="banner-preview" class="preview-container" style="flex: 1; height: 60px; border-radius: 12px; background: var(--input-bg); border: 1px dashed var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; background-size: cover; background-position: center; background-image: ${this.state.bannerBase64 ? `url(data:image/jpeg;base64,${this.state.bannerBase64})` : 'none'};">
-                                    ${this.state.bannerBase64 ? `<button class="delete-badge" onclick="event.stopPropagation(); App.removeImage('banner')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg></button>` : '+ Subir Banner'}
+                                <div id="banner-preview" class="preview-container" style="flex: 1; height: 60px; border-radius: 12px; background: var(--input-bg); border: 1px dashed var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; background-size: cover; background-position: center; background-image: ${this.state.bannerUrl ? `url(${this.state.bannerUrl})` : 'none'};">
+                                    ${this.state.bannerUrl ? `<button class="delete-badge" onclick="event.stopPropagation(); App.removeImage('banner')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg></button>` : (this.state.isUploading ? 'Subiendo...' : '+ Subir Banner')}
                                 </div>
                                 <input type="file" id="banner-pic" accept="image/*" style="display: none;" onchange="App.handleBanner(event)">
-                                <button class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.8rem;" onclick="document.getElementById('banner-pic').click()">Subir Banner</button>
+                                <button class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.8rem;" onclick="document.getElementById('banner-pic').click()" ${this.state.isUploading ? 'disabled' : ''}>${this.state.isUploading ? 'Subiendo...' : 'Subir Banner'}</button>
                             </div>
                         </div>
 
@@ -262,10 +303,10 @@ const App = {
             const d = this.state.data;
             appDiv.innerHTML = `
                 <div class="glass-card">
-                    <div class="banner" style="background-image: ${d.banner ? `url(data:image/jpeg;base64,${d.banner})` : 'none'};"></div>
+                    <div class="banner" style="background-image: ${d.banner ? `url(${d.banner})` : 'none'};"></div>
                     <div class="client-hero">
                         ${d.avatar ? 
-                            `<div class="avatar" style="background-image: url(data:image/jpeg;base64,${d.avatar});"></div>` : 
+                            `<div class="avatar" style="background-image: url(${d.avatar});"></div>` : 
                             `<div class="avatar">${d.name.charAt(0).toUpperCase()}</div>`
                         }
                         <div>
