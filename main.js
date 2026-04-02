@@ -8,7 +8,7 @@ const App = {
         bannerUrl: null,
         businessInfo: '',
         isUploading: false,
-        imgbbKey: localStorage.getItem('imgbb_key') || '6d207e02198a847aa98d0a2a901485a5' 
+        imgbbKey: localStorage.getItem('imgbb_key') || 'f3e30b730e5523eee98b2310b95cad47' 
     },
 
     setApiKey(key) {
