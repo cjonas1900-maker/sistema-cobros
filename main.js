@@ -304,8 +304,6 @@ const App = {
                             <p style="font-size: 0.75rem; color: var(--text-dim); text-align: center;">Comparte este link por WhatsApp para recibir tus pagos.</p>
                         </div>
                     </div>
-
-                    </div>
                 </div>
             `;
         } else {
