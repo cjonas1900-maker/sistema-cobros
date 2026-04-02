@@ -8,7 +8,13 @@ const App = {
         bannerUrl: null,
         businessInfo: '',
         isUploading: false,
-        imgbbKey: '6d207e02198a847aa98d0a2a901485a5' // Demo key, user can change this
+        imgbbKey: localStorage.getItem('imgbb_key') || '6d207e02198a847aa98d0a2a901485a5' 
+    },
+
+    setApiKey(key) {
+        this.state.imgbbKey = key;
+        localStorage.setItem('imgbb_key', key);
+        this.render();
     },
 
     init() {
@@ -96,7 +102,8 @@ const App = {
             if (resData.success) {
                 callback(resData.data.url);
             } else {
-                alert("Error al subir imagen. Intenta de nuevo.");
+                const msg = resData.error ? resData.error.message : "Error desconocido";
+                alert(`Error de ImgBB: ${msg}\n\nTIP: Es posible que necesites usar tu propia API Key gratuita.`);
             }
             this.render();
         })
@@ -296,6 +303,15 @@ const App = {
                             </div>
                             <p style="font-size: 0.75rem; color: var(--text-dim); text-align: center;">Comparte este link por WhatsApp para recibir tus pagos.</p>
                         </div>
+                    </div>
+
+                    <div style="margin-top: 3rem; border-top: 1px solid var(--card-border); padding-top: 1.5rem; opacity: 0.7;">
+                        <p style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.5rem; text-align: center;">⚙️ CONFIGURACIÓN DE HOSTING</p>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="custom-api-key" placeholder="Pega tu API Key de ImgBB aquí" style="font-size: 0.7rem; height: 32px; padding: 0 0.5rem;" value="${this.state.imgbbKey === '6d207e02198a847aa98d0a2a901485a5' ? '' : this.state.imgbbKey}">
+                            <button class="btn btn-outline" style="padding: 0 0.8rem; font-size: 0.7rem; height: 32px;" onclick="App.setApiKey(document.getElementById('custom-api-key').value)">Guardar</button>
+                        </div>
+                        <p style="font-size: 0.65rem; color: var(--text-dim); margin-top: 0.5rem; text-align: center;">Consigue tu clave gratis en <a href="https://api.imgbb.com/" target="_blank" style="color: var(--primary);">api.imgbb.com</a> para evitar errores.</p>
                     </div>
                 </div>
             `;
