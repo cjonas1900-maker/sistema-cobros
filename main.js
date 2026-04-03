@@ -375,12 +375,13 @@ const App = {
     },
 
     renderClientFields(data) {
+        const copyIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 8px; vertical-align: middle; opacity: 0.6;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
         let html = '';
         if (data.method === 'yape') {
             html += `
                 <div class="field">
                     <label>NÚMERO YAPE</label>
-                    <span class="copy-badge" onclick="App.copyText('${data.fields.number}', this)">${data.fields.number}</span>
+                    <span class="copy-badge" onclick="App.copyText('${data.fields.number}', this)">${data.fields.number}${copyIcon}</span>
                 </div>
             `;
         } else if (data.method === 'bcp') {
@@ -388,7 +389,7 @@ const App = {
                 html += `
                     <div class="field">
                         <label>NOMBRE EN TARJETA</label>
-                        <span class="copy-badge" onclick="App.copyText('${data.fields.name}', this)">${data.fields.name}</span>
+                        <span class="copy-badge" onclick="App.copyText('${data.fields.name}', this)">${data.fields.name}${copyIcon}</span>
                     </div>
                 `;
             }
@@ -396,7 +397,7 @@ const App = {
                 html += `
                     <div class="field">
                         <label>CUENTA BCP</label>
-                        <span class="copy-badge" onclick="App.copyText('${data.fields.account}', this)">${data.fields.account}</span>
+                        <span class="copy-badge" onclick="App.copyText('${data.fields.account}', this)">${data.fields.account}${copyIcon}</span>
                     </div>
                 `;
             }
@@ -404,7 +405,7 @@ const App = {
                 html += `
                     <div class="field">
                         <label>CCI</label>
-                        <span class="copy-badge" onclick="App.copyText('${data.fields.cci}', this)">${data.fields.cci}</span>
+                        <span class="copy-badge" onclick="App.copyText('${data.fields.cci}', this)">${data.fields.cci}${copyIcon}</span>
                     </div>
                 `;
             }
@@ -412,14 +413,14 @@ const App = {
             html += `
                 <div class="field">
                     <label>CUENTA INTERBANK</label>
-                    <span class="copy-badge" onclick="App.copyText('${data.fields.account}', this)">${data.fields.account}</span>
+                    <span class="copy-badge" onclick="App.copyText('${data.fields.account}', this)">${data.fields.account}${copyIcon}</span>
                 </div>
             `;
             if (data.fields.cci) {
                 html += `
                     <div class="field">
                         <label>CCI</label>
-                        <span class="copy-badge" onclick="App.copyText('${data.fields.cci}', this)">${data.fields.cci}</span>
+                        <span class="copy-badge" onclick="App.copyText('${data.fields.cci}', this)">${data.fields.cci}${copyIcon}</span>
                     </div>
                 `;
             }
